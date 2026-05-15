@@ -1,4 +1,4 @@
-param([string]$msg = "")
+﻿param([string]$msg = "")
 chcp 65001 | Out-Null
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [Console]::InputEncoding = [System.Text.Encoding]::UTF8
@@ -20,6 +20,7 @@ if (-not $msg) {
 # 2. 强制先同步到 GAS 云端（如果这一步失败，通常是网络或登录问题，直接断开）
 Write-Host "🚀 正在推送至 Google Apps Script..." -ForegroundColor Cyan
 clasp push
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 if ($LASTEXITCODE -ne 0) { 
     Write-Host "❌ Clasp push 失败，操作终止！" -ForegroundColor Red
     exit 
@@ -31,7 +32,9 @@ git add .
 git commit -m $msg
 
 # 执行推送并捕获错误
-git push
+$branch = git rev-parse --abbrev-ref HEAD
+git push -u origin $branch
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 if ($LASTEXITCODE -ne 0) {
     Write-Host "⚠️ Git Push 失败！可能是另一台电脑有更新没拉取。" -ForegroundColor Yellow
     Write-Host "请先运行 'git pull'，解决冲突后再试。" -ForegroundColor Red
